@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {StyleSheet, View, TextInput, Text, Button} from 'react-native'
+import {StyleSheet, View, TextInput, Text, Button, Alert} from 'react-native'
 import FuelValueOption from './components/FuelValueOption'
 
 import History from './components/History'
@@ -50,6 +50,25 @@ export default class App extends Component {
     }
 
     async delete() {
+        Alert.alert('Excluir registro?', 'Tem certeza?',
+            [
+                {
+                    text: 'Cancelar', onPress: () => {
+                    }
+                },
+                {
+                    text: 'Sim', onPress: () => {
+                        this.deleteReally()
+                    }
+                }
+            ],
+            {
+                cancelable: true
+            }
+        );
+    }
+
+    async deleteReally() {
         if (this.state.id) {
             try {
                 await fuelService.delete(this.state.id);

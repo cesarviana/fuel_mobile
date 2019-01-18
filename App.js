@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {StyleSheet, View, TextInput, Text, Button} from 'react-native'
 import FuelValueOption from './components/FuelValueOption'
-import KilometersInput from './components/KilometersInput'
+
 import History from './components/History'
 
 import fuelService from './services/FuelService'
@@ -9,39 +9,54 @@ import fuelService from './services/FuelService'
 export default class App extends Component {
     constructor(props) {
         super(props);
-        this.previousKilometers = 1000;
         this.state = {
-            values: [50, 100],
+            id: undefined,
+            values: [50, 100, 200],
             price: 4.06,
-            selectedValue: [50],
-            kilometers: this.previousKilometers.toString(),
+            selectedValue: 50,
+            kilometers: 0,
             list: []
         };
-        this.list()
+        this.updateData();
     }
 
-    list(){
-        fuelService.list().then(snapshot => {
-            const list = [];
-            snapshot.forEach(doc=>list.push(doc.data()));
-            this.setState({list});
-        })
+    async updateData() {
+        const list = await fuelService.list();
+        this.setState({list});
+        if (list.length > 0) {
+            const kilometers = list[0].kilometers;
+            const price = list[0].price;
+            this.setState({id: undefined, createdAt: undefined, kilometers, price})
+        }
     }
 
     async save() {
         try {
             this.setState({saving: true});
             await fuelService.save({
+                id: this.state.id,
+                createdAt: this.state.createdAt,
                 value: this.state.selectedValue,
                 price: this.state.price,
                 kilometers: this.state.kilometers
             });
-            alert('O abastecimento foi salvo.');
-            this.list()
+            alert(`O abastecimento foi ${this.state.id ? 'atualizado' : 'salvo'}.`);
+            this.updateData()
         } catch (e) {
             alert(e.message)
         } finally {
             this.setState({saving: false});
+        }
+    }
+
+    async delete() {
+        if (this.state.id) {
+            try {
+                await fuelService.delete(this.state.id);
+                this.updateData()
+            } catch (e) {
+                alert(e.message)
+            }
         }
     }
 
@@ -59,21 +74,38 @@ export default class App extends Component {
                     this.state.values.map(value =>
                         <FuelValueOption key={value}
                                          value={value}
-                                         liters={Math.round(value / this.state.price) + ' litros'}
+                                         liters={Math.round(value / this.state.price) + 'L'}
                                          onSelect={(selectedValue) => this.setState({selectedValue})}
                                          selected={this.state.selectedValue === value}
                         />
                     )
                 }
-                <KilometersInput onChange={(kilometers) => this.setState({kilometers})}
-                                 previousKilometers={this.previousKilometers}
+                <Text>KM atual</Text>
+                <TextInput onChangeText={(kilometers) => this.setState({kilometers})}
+                           keyboardType='numeric'
+                           value={this.state.kilometers.toString()}
                 />
+
                 <Button title='Salvar'
                         onPress={this.save.bind(this)}
                         color='blue'
                         disabled={this.state.saving}
                 />
-                <History list={ this.state.list }/>
+                {
+                    this.state.id ?
+                        <Button title='Excluir'
+                                onPress={this.delete.bind(this)}
+                                color='red'
+                                disabled={this.state.saving}
+                        /> : null
+                }
+                <History list={this.state.list} onSelect={(item) => this.setState({
+                    id: item.id,
+                    createdAt: item.createdAt,
+                    price: item.price,
+                    selectedValue: item.value,
+                    kilometers: item.kilometers
+                })}/>
             </View>
         );
     }
@@ -82,7 +114,7 @@ export default class App extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-        paddingTop: 20
+        paddingTop: 20,
+        padding: 6
     },
 });

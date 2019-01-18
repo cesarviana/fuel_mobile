@@ -1,12 +1,15 @@
 import Dao from './Dao'
 
 class FuelService {
-    async save(refuelling) {
+    static async save(refuelling) {
         return Dao.instance('refuelling').save(refuelling);
     }
-    async list(){
+    static async list(){
         return Dao.instance('refuelling').list()
+    }
+    static async delete(id){
+        return Dao.instance('refuelling').delete(id)
     }
 }
 
-export default new FuelService();
+export default FuelService;

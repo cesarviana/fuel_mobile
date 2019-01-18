@@ -1,18 +1,19 @@
 import React, {Component} from 'react'
-import {View, Text, ScrollView, FlatList} from 'react-native'
+import {ScrollView, FlatList} from 'react-native'
 
-import fuelService from '../services/FuelService'
+import HistoryItem from './HistoryItem'
 
 export default class History extends Component {
     constructor(props) {
         super(props);
+        this.onSelect = props.onSelect || function () {}
     }
 
     render() {
         return (
             <ScrollView>
                 <FlatList data={this.props.list}
-                          renderItem={({item}) => <Text>{ 'x' + item.value}</Text>}
+                          renderItem={({item}) => <HistoryItem onSelect={(item)=>this.onSelect(item)} item={item}/>}
                 />
             </ScrollView>
         )

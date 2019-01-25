@@ -93,7 +93,7 @@ export default class App extends Component {
                     this.state.values.map(value =>
                         <FuelValueOption key={value}
                                          value={value}
-                                         liters={Math.round(value / this.state.price) + 'L'}
+                                         liters={(value / this.state.price).toFixed(3) + ' L'}
                                          onSelect={(selectedValue) => this.setState({selectedValue})}
                                          selected={this.state.selectedValue === value}
                         />

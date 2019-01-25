@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "AwesomeProject",
-    "slug": "AwesomeProject",
+    "name": "FuelTrack",
+    "slug": "FuelTrack",
     "privacy": "public",
     "sdkVersion": "31.0.0",
+    "description" : "This app tracks all times when you fuel your car. The idea is reduce fuel consuming.",
     "platforms": [
-      "ios",
       "android"
     ],
     "version": "1.0.0",
@@ -22,8 +22,8 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true
+    "android": {
+      "package" : "br.com.fueltrack"
     }
   }
 }

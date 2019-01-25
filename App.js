@@ -54,6 +54,7 @@ export default class App extends Component {
             [
                 {
                     text: 'Cancelar', onPress: () => {
+                        // cancel :)
                     }
                 },
                 {

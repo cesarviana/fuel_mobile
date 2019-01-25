@@ -2,13 +2,13 @@ import Dao from './Dao'
 
 class FuelService {
     static async save(refuelling) {
-        return Dao.instance('refuelling').save(refuelling);
+        return Dao.save(refuelling);
     }
     static async list(){
-        return Dao.instance('refuelling').list()
+        return Dao.list()
     }
     static async delete(id){
-        return Dao.instance('refuelling').delete(id)
+        return Dao.delete(id)
     }
 }
 

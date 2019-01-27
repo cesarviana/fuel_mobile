@@ -1,20 +1,25 @@
 import React, {Component} from 'react'
-import {StyleSheet, View, TextInput, Text, Button, Alert} from 'react-native'
+import {StyleSheet, View, TextInput, Text, Button, Alert, CheckBox} from 'react-native'
 import FuelValueOption from './components/FuelValueOption'
-
+import Messages from './services/Messages'
+/**
+ * This app stores fuel data, to track fuel consumption by month, money spent by period, etc.
+ * */
 import History from './components/History'
 
 import fuelService from './services/FuelService'
+import Message from "./components/Message";
 
 export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
             id: undefined,
-            values: [50, 100, 200],
+            values: [50, 100],
             price: 4.06,
-            selectedValue: 50,
+            selectedValue: 100,
             kilometers: 0,
+            otherPriceChecked: false,
             list: []
         };
         this.updateData();
@@ -40,10 +45,10 @@ export default class App extends Component {
                 price: this.state.price,
                 kilometers: this.state.kilometers
             });
-            alert(`O abastecimento foi ${this.state.id ? 'atualizado' : 'salvo'}.`);
+            Messages.alert(`O abastecimento foi ${this.state.id ? 'atualizado' : 'salvo'}.`);
             this.updateData()
         } catch (e) {
-            alert(e.message)
+            Messages.alert(`O abastecimento foi ${this.state.id ? 'atualizado' : 'salvo'}.`);
         } finally {
             this.setState({saving: false});
         }
@@ -83,27 +88,49 @@ export default class App extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <TextInput onChangeText={(price) => this.setState({price})}
-                           value={this.state.price.toString()}
-                           keyboardType='numeric'
+                <TextInput
+                    style={styles.textInput}
+                    onChangeText={(price) => this.setState({price})}
+                    value={this.state.price.toString()}
+                    keyboardType='numeric'
                 />
-                {
-                    <Text>{this.state.selectedValue}</Text>
-                }
-                {
-                    this.state.values.map(value =>
-                        <FuelValueOption key={value}
-                                         value={value}
-                                         liters={(value / this.state.price).toFixed(3) + ' L'}
-                                         onSelect={(selectedValue) => this.setState({selectedValue})}
-                                         selected={this.state.selectedValue === value}
-                        />
-                    )
-                }
+                <View style={styles.valueOptions}>
+                    {
+                        this.state.values.map(value =>
+                            <FuelValueOption key={value}
+                                             value={value}
+                                             liters={this.litersL(value)}
+                                             onSelect={(selectedValue) => this.setState({
+                                                 selectedValue,
+                                                 otherPriceChecked: false
+                                             })}
+                                             selected={!this.state.otherPriceChecked && this.state.selectedValue === value}
+                            />
+                        )
+                    }
+                </View>
+                <View style={styles.otherValueContainer}>
+                    <CheckBox
+                        value={this.state.otherPriceChecked}
+                        onValueChange={() => this.setState({otherPriceChecked: !this.state.otherPriceChecked})}
+                    />
+                    <Text>Outro valor</Text>
+                    <TextInput
+                        value={this.state.selectedValue.toString()}
+                        style={[{borderWidth: 1, borderColor: 'red', width: 80}, styles.textInput]}
+                        onChangeText={(selectedValue) => this.setState({selectedValue})}
+                        editable={this.state.otherPriceChecked}
+                        keyboardType='numeric'
+                    />
+                </View>
+
+                <Text>{this.litersL(this.state.selectedValue)}</Text>
                 <Text>KM atual</Text>
-                <TextInput onChangeText={(kilometers) => this.setState({kilometers})}
-                           keyboardType='numeric'
-                           value={this.state.kilometers.toString()}
+                <TextInput
+                    style={styles.textInput}
+                    onChangeText={(kilometers) => this.setState({kilometers})}
+                    keyboardType='numeric'
+                    value={this.state.kilometers.toString()}
                 />
 
                 <Button title='Salvar'
@@ -120,21 +147,40 @@ export default class App extends Component {
                         /> : null
                 }
                 <History list={this.state.list} onSelect={(item) => this.setState({
+                    otherPriceChecked: this.state.values.find((v) => v === item.value) === undefined,
                     id: item.id,
                     createdAt: item.createdAt,
                     price: item.price,
                     selectedValue: item.value,
                     kilometers: item.kilometers
                 })}/>
+                <Message/>
             </View>
         );
+    }
+
+    litersL(value) {
+        return (value / this.state.price).toFixed(3) + ' L'
     }
 }
 
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: 'lightgreen',
         flex: 1,
         paddingTop: 20,
         padding: 6
     },
+    textInput: {
+        fontSize: 25
+    },
+    valueOptions: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-around'
+    },
+    otherValueContainer: {
+        display: 'flex',
+        flexDirection: 'row'
+    }
 });

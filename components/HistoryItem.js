@@ -14,7 +14,7 @@ export default class HistoryItem extends Component {
     render() {
         return (
             <View style={{padding: 10}}>
-                <Text>{this.item.value} {this.item.price} { this.item.date } { this.item.kilometers }</Text>
+                <Text>R$ {this.item.value} | R$ {this.item.price} | { this.item.date } | { this.item.kilometers } km</Text>
                 <Button title={'Editar'} onPress={()=>this.props.onSelect(this.item)}/>
             </View>
         )
